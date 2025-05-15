@@ -1,0 +1,65 @@
+;*****************************************************************************
+; File: pre1.s43 - XOR Sum of ID Arrays
+; Author: Asaf Kamber , Aviv Primor
+; Description: Computes the sum of XOR operations between corresponding
+;              elements of two ID arrays.
+;*****************************************************************************
+#include <msp430xG46x.h>     ; Include MSP430 definitions
+
+;-------------------------------------------------------------------------------
+; Data Section - Memory allocation for variables
+;-------------------------------------------------------------------------------
+         ORG 1100h           ; Start of data memory section
+avivID   DW  0,8,4,8,8,9,7,3 ; Aviv's ID digits - stored as array of words
+asafID   DW  1,3,3,9,0,4,2,9 ; Asaf's ID digits - stored as array of words
+SIZE     DW  8               ; Size of the arrays (CORRECTED: changed from 9 to 8)
+
+;-------------------------------------------------------------------------------
+; Code Section
+;-------------------------------------------------------------------------------
+         RSEG   CODE         ; Code segment begins here
+
+;-------------------------------------------------------------------------------
+; Main Program
+;-------------------------------------------------------------------------------
+Main:    
+         MOV  SIZE,R5        ; Load array size into R5 as loop counter
+         MOV  #avivID,R6     ; R6 points to Aviv's ID array
+         MOV  #asafID,R7     ; R7 points to Asaf's ID array
+         CLR  R4             ; Clear R4 to store the accumulated XOR sum
+
+;-------------------------------------------------------------------------------
+; Main processing loop
+;-------------------------------------------------------------------------------
+Loop:    
+         DEC  R5             ; Decrement loop counter
+         JZ   EndProgram     ; If counter = 0, we're done, exit loop
+         
+         MOV  @R6+,R8        ; Load current Aviv ID digit into R8, post-increment pointer
+         MOV  @R7+,R9        ; Load current Asaf ID digit into R9, post-increment pointer
+         XOR  R8,R9          ; Compute XOR between the two digits
+         ADD  R9,R4          ; Add result to running sum in R4
+         
+         JMP  Loop           ; Repeat for next digit
+
+;-------------------------------------------------------------------------------
+; Program End
+;-------------------------------------------------------------------------------
+EndProgram:
+         ; Result is in R4 = sum of XOR operations between corresponding digits
+         
+         ; In a complete program, you might:
+         ; - Store the result in memory
+         ; - Output the result
+         ; - Use the result in further calculations
+         
+         JMP  EndProgram     ; Infinite loop to end program
+         NOP                 ; No operation (to avoid warnings)
+
+;-------------------------------------------------------------------------------
+; Interrupt Vectors
+;-------------------------------------------------------------------------------
+         COMMON  INTVEC      ; Interrupt Vectors section
+         ORG     RESET_VECTOR ; Power-On Reset vector
+         DW      Main        ; Set reset vector to point to the main program
+         END

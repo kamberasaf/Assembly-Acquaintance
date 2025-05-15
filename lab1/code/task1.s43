@@ -1,0 +1,101 @@
+;*****************************************************************************
+; File: task1.s43 - Bit Counting in ID Arrays
+; Author: Asaf Kamber
+; Description: Counts the number of '1' bits in each element of two ID arrays
+;              and stores the counts in separate result arrays.
+;*****************************************************************************
+#include <msp430xG46x.h>     ; Include MSP430 definitions
+
+;-------------------------------------------------------------------------------
+; Data Section - Memory allocation for variables
+;-------------------------------------------------------------------------------
+         ORG 1100h           ; Start of data memory section
+id_asaf  DW    1,3,3,9,0,4,2,9  ; Asaf's ID digits - stored as array of words
+id_aviv  DW    0,8,4,8,8,9,7,3  ; Aviv's ID digits - stored as array of words
+OnesAmount1  DS16  8         ; Array to store bit counts for Asaf's ID (8 elements)
+OnesAmount2  DS16  8         ; Array to store bit counts for Aviv's ID (8 elements)
+SIZE     DW    8             ; Size of the arrays (CORRECTED: changed from 9 to 8)
+BITS     DW    16            ; Number of bits in a word (CORRECTED: changed from 5 to 16)
+
+;-------------------------------------------------------------------------------
+; Code Section
+;-------------------------------------------------------------------------------
+         RSEG   CODE         ; Code segment begins here
+
+;-------------------------------------------------------------------------------
+; Main Program
+;-------------------------------------------------------------------------------
+Main:    
+         ; Initialize pointers and counters
+         MOV  #id_asaf,R5    ; R5 points to Asaf's ID array
+         MOV  #id_aviv,R6    ; R6 points to Aviv's ID array
+         MOV  #OnesAmount1,R10  ; R10 points to results for Asaf's ID
+         MOV  #OnesAmount2,R11  ; R11 points to results for Aviv's ID
+         MOV  SIZE,R7        ; R7 = number of elements to process
+
+;-------------------------------------------------------------------------------
+; First part: Count bits in Asaf's ID array
+;-------------------------------------------------------------------------------
+Asaf_Loop:
+         MOV  @R5+,R12       ; Load current ID digit into R12, increment pointer
+         CLR  R14            ; Clear R14 to count '1' bits in this number
+         MOV  BITS,R8        ; Load bit counter (16 bits per word)
+
+Asaf_Count_Bits:
+         RRC  R12            ; Rotate right through carry
+         JNC  Asaf_Next_Bit  ; If carry=0, skip increment
+         INC  R14            ; Increment bit counter if carry=1
+         
+Asaf_Next_Bit:
+         DEC  R8             ; Decrement bit counter
+         JNZ  Asaf_Count_Bits ; If more bits to check, continue loop
+         
+         MOV  R14,0(R10)     ; Store bit count in result array
+         INCD R10            ; Move to next position in result array
+         
+         DEC  R7             ; Decrement element counter
+         JNZ  Asaf_Loop      ; If more elements, continue loop
+
+;-------------------------------------------------------------------------------
+; Second part: Count bits in Aviv's ID array
+;-------------------------------------------------------------------------------
+         MOV  SIZE,R7        ; Reset element counter
+         MOV  #id_aviv,R6    ; Reset pointer to Aviv's ID array
+         MOV  #OnesAmount2,R11  ; Reset pointer to Aviv's results array
+
+Aviv_Loop:
+         MOV  @R6+,R12       ; Load current ID digit into R12, increment pointer
+         CLR  R14            ; Clear R14 to count '1' bits in this number
+         MOV  BITS,R8        ; Load bit counter (16 bits per word)
+
+Aviv_Count_Bits:
+         RRC  R12            ; Rotate right through carry
+         JNC  Aviv_Next_Bit  ; If carry=0, skip increment
+         INC  R14            ; Increment bit counter if carry=1
+         
+Aviv_Next_Bit:
+         DEC  R8             ; Decrement bit counter
+         JNZ  Aviv_Count_Bits ; If more bits to check, continue loop
+         
+         MOV  R14,0(R11)     ; Store bit count in result array
+         INCD R11            ; Move to next position in result array
+         
+         DEC  R7             ; Decrement element counter
+         JNZ  Aviv_Loop      ; If more elements, continue loop
+
+;-------------------------------------------------------------------------------
+; Program End
+;-------------------------------------------------------------------------------
+EndProgram:
+         ; Results are stored in OnesAmount1 and OnesAmount2 arrays
+         
+         JMP  EndProgram     ; Infinite loop to end program
+         NOP                 ; No operation (to avoid warnings)
+
+;-------------------------------------------------------------------------------
+; Interrupt Vectors
+;-------------------------------------------------------------------------------
+         COMMON  INTVEC      ; Interrupt Vectors section
+         ORG     RESET_VECTOR ; Power-On Reset vector
+         DW      Main        ; Set reset vector to point to the main program
+         END
