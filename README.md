@@ -7,9 +7,9 @@ This repository contains my work and progress learning assembly language program
 ### Lab 1: Introduction to Assembly Programming
 - [Pre-lab Assignment Code](./lab1/pre1.s43) - Initial practice exercises
 - [Task Assignment Code](./lab1/task1.s43) - Main lab implementation
-- [Pre-lab Report](./lab1/pre_lab1.pdf) - Preparation documentation
-- [Preparation Report](./lab1/Preparation_report_LAB1.pdf) - Detailed preparation analysis
-- [Final Report](./lab1/final_lab1.pdf) - Complete analysis and results
+- [Pre-lab Report](./lab1/lab1_pre_assignment.pdf) - Preparation documentation
+- [Preparation Report](./lab1/lab1_preparation_report.pdf) - Detailed preparation analysis
+- [Final Report](./lab1/lab1_final_report.pdf) - Complete analysis and results
 
 ## About the MSP430 Platform
 
